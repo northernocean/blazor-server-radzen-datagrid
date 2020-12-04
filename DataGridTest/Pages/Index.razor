@@ -1,0 +1,52 @@
+﻿@page "/"
+
+@using DataGridTest.Data
+
+<div class="mb-4"></div>
+
+<div class="row pt-2 page-header">
+    <div class="col-auto p-1 pr-2">
+        <h2>Test</h2>
+    </div>
+    <div class="col-auto pl-1 pr-1">
+        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                      Click="@(args => Foo())">Foo</RadzenButton>
+    </div>
+    <div class="col-auto pl-1 pr-1">
+        <RadzenButton Icon="refresh" ButtonStyle="ButtonStyle.Secondary"
+                      Click="@(args => Refresh())"></RadzenButton>
+    </div>
+    <div class="col-auto pl-1 pr-1">
+        <RadzenButton Icon="add_circle_outline" Text="Insert" ButtonStyle="ButtonStyle.Primary"
+                      Click="@InsertRow" />
+    </div>
+</div>
+
+<div class="container-fluid w-75 m-auto">
+
+    <RadzenGrid @ref="DataGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
+                FilterMode="FilterMode.Advanced" AllowPaging="true" PageSize="15"
+                AllowSorting="true" Data="@hobbits" TItem="Ship" ColumnWidth="200px"
+                EditMode="DataGridEditMode.Single"
+                RowUpdate="OnUpdateRow" RowCreate="OnCreateRow" RowEdit="OnEditRow">
+        <Columns>
+            <RadzenGridColumn TItem="Ship" Property="Id" Title="Id">
+                <EditTemplate Context="context">
+                    <RadzenNumeric @bind-Value="context.Id" Style="width:100%; display: block" Name="Id" />
+                </EditTemplate>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Ship" Property="Name" Title="Name">
+                <EditTemplate Context="context">
+                    <RadzenTextBox @bind-Value="context.Name" Style="width:100%; display: block" Name="Name" />
+                    <RadzenRequiredValidator Text="Name is required" Component="Name" Popup="true" />
+                </EditTemplate>
+            </RadzenGridColumn>
+            <RadzenGridColumn TItem="Ship" Property="Launched" Title="Launched">
+                <EditTemplate Context="context">
+                    <RadzenNumeric @bind-Value="context.Launched" Style="width:100%; display: block" Name="Launched" />
+                </EditTemplate>
+            </RadzenGridColumn>
+        </Columns>
+    </RadzenGrid>
+
+</div>
