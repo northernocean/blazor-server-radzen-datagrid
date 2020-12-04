@@ -4,25 +4,22 @@
 
 <div class="mb-4"></div>
 
-<div class="row pt-2 page-header">
-    <div class="col-auto p-1 pr-2">
-        <h2>Test</h2>
-    </div>
-    <div class="col-auto pl-1 pr-1">
-        <RadzenButton ButtonStyle="ButtonStyle.Secondary"
-                      Click="@(args => Foo())">Foo</RadzenButton>
-    </div>
-    <div class="col-auto pl-1 pr-1">
-        <RadzenButton Icon="refresh" ButtonStyle="ButtonStyle.Secondary"
-                      Click="@(args => Refresh())"></RadzenButton>
-    </div>
-    <div class="col-auto pl-1 pr-1">
-        <RadzenButton Icon="add_circle_outline" Text="Insert" ButtonStyle="ButtonStyle.Primary"
-                      Click="@InsertRow" />
-    </div>
-</div>
-
 <div class="container-fluid w-75 m-auto">
+
+    <div class="row pt-2 page-header">
+        <div class="col-auto pl-1 pr-1">
+            <RadzenButton ButtonStyle="ButtonStyle.Secondary"
+                          Click="@(args => Foo())">Foo</RadzenButton>
+        </div>
+        <div class="col-auto pl-1 pr-1">
+            <RadzenButton Icon="refresh" ButtonStyle="ButtonStyle.Secondary"
+                          Click="@(args => Refresh())"></RadzenButton>
+        </div>
+        <div class="col-auto pl-1 pr-1">
+            <RadzenButton Icon="add_circle_outline" Text="Insert" ButtonStyle="ButtonStyle.Primary"
+                          Click="@InsertRow" />
+        </div>
+    </div>
 
     <RadzenGrid @ref="DataGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 FilterMode="FilterMode.Advanced" AllowPaging="true" PageSize="15"
@@ -48,5 +45,7 @@
             </RadzenGridColumn>
         </Columns>
     </RadzenGrid>
+
+    <Radzen.Blazor.RadzenTextArea @bind-Value="@console"></Radzen.Blazor.RadzenTextArea>
 
 </div>

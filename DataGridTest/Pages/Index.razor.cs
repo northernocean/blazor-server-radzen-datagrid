@@ -14,6 +14,8 @@ namespace DataGridTest.Pages
         private RadzenGrid<Ship> DataGrid;
         private IEnumerable<Ship> hobbits;
         private IList<Ship> DDL_Data;
+        private IList<string> Messages = new List<string>();
+        private string console = "";
 
         protected override void OnInitialized()
         {
@@ -73,6 +75,22 @@ namespace DataGridTest.Pages
         }
 
         //DEBUG
+        private void MockWriteToConsole(string msg)
+        {
+            Messages.Add(msg);
+            while (Messages.Count() > 20)
+            {
+                Messages.RemoveAt(0);
+            }
+            console = string.Join("\n", Messages);
+            StateHasChanged();
+        }
+
+        private string MockReadFromConsole()
+        {
+            return string.Join('\n', Messages);
+        }
+
         private void print([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool withCounts = true, bool withSquiggles = true)
         {
             string msg = "~~" + name;
