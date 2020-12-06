@@ -12,18 +12,20 @@ namespace DataGridTest.Pages
 
 
         private RadzenGrid<Ship> DataGrid;
-        private IEnumerable<Ship> hobbits;
+        private IEnumerable<Ship> ships;
         private IList<Ship> DDL_Data;
-        private IList<string> Messages = new List<string>();
-        private string console = "";
+        private readonly IList<string> Messages = new List<string>();
+        private string console_output = "";
 
         protected override void OnInitialized()
         {
-            var data = new List<Ship>();
-            data.Add(new Ship { Id = 1, Name = "Cutty Sark", Launched = 1869 } );
-            data.Add(new Ship { Id = 2, Name = "Edmund Fitzgerald", Launched = 1958 } );
-            data.Add(new Ship { Id = 3, Name = "Kon Tiki", Launched = 1947 } );
-            hobbits = data;
+            var data_store = new List<Ship>
+            {
+                new Ship { Id = 1, Name = "Cutty Sark", Launched = 1869 },
+                new Ship { Id = 2, Name = "Edmund Fitzgerald", Launched = 1958 },
+                new Ship { Id = 3, Name = "Kon Tiki", Launched = 1947 }
+            };
+            ships = data_store;
 
             DDL_Data = new List<Ship>
             {
@@ -49,27 +51,27 @@ namespace DataGridTest.Pages
         protected void InsertRow()
         {
             print("InsertRow-Before");
-            var newRecipe = new Ship();
-            DataGrid.InsertRow(newRecipe).Wait();
+            var newShip = new Ship();
+            DataGrid.InsertRow(newShip).Wait();
             // await DataGrid.UpdateRow(newRecipe);
-            Save(newRecipe);
+            //Save(newShip);
             //Foo(true);
             print("InsertRow-After");
 
         }
 
-        void OnCreateRow(Ship hobbit) { print(); }
+        void OnCreateRow(Ship ship) { print(); }
 
-        void OnUpdateRow(Ship hobbit) { print(); }
+        void OnUpdateRow(Ship ship) { print(); }
 
-        void OnEditRow(Ship hobbit) { print(withCounts: false); }
+        void OnEditRow(Ship ship) { print(withCounts: false); }
 
-        void Save(Ship hobbit)
+        void Save(Ship ship)
         {
-            print("beginning save...", false, false);
+            print("beginning save...", false);
             print();
-            DataGrid.UpdateRow(hobbit).Wait();
-            //hobbits = hobbits.Append(hobbit);
+            DataGrid.UpdateRow(ship).Wait();
+            //ships = ships.Append(ship);
             print();
 
         }
@@ -78,25 +80,22 @@ namespace DataGridTest.Pages
         private void MockWriteToConsole(string msg)
         {
             Messages.Add(msg);
-            while (Messages.Count() > 20)
+            while (Messages.Count() > 30)
             {
                 Messages.RemoveAt(0);
             }
-            console = string.Join("\n", Messages);
+            console_output = string.Join("\n", Messages);
             StateHasChanged();
         }
 
-        private string MockReadFromConsole()
+        private void print(
+            [System.Runtime.CompilerServices.CallerMemberName] string name = "", 
+            bool withCounts = true)
         {
-            return string.Join('\n', Messages);
-        }
-
-        private void print([System.Runtime.CompilerServices.CallerMemberName] string name = "", bool withCounts = true, bool withSquiggles = true)
-        {
-            string msg = "~~" + name;
+            string msg = name;
             if (withCounts)
-                msg += $"({hobbits.Count()},{DataGrid.Data.Count()})";
-            msg += "~~";
+                msg += $"({ships.Count()},{DataGrid.Data.Count()})";
+            MockWriteToConsole(msg);
             Debug.WriteLine(msg);
         }
 
@@ -106,13 +105,13 @@ namespace DataGridTest.Pages
             print();
             if (detailed)
             {
-                Debug.WriteLine("hobbit data---------");
-                foreach (var item in hobbits)
+                Debug.WriteLine("ship data---------");
+                foreach (var item in ships)
                 {
                     Debug.WriteLine(item.Name + " " + item.Launched);
                 }
                 Debug.WriteLine("grid data---------");
-                foreach (var item in hobbits)
+                foreach (var item in ships)
                 {
                     Debug.WriteLine(item.Name + " " + item.Launched);
                 }

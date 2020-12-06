@@ -23,7 +23,7 @@
 
     <RadzenGrid @ref="DataGrid" AllowFiltering="true" FilterCaseSensitivity="FilterCaseSensitivity.CaseInsensitive"
                 FilterMode="FilterMode.Advanced" AllowPaging="true" PageSize="15"
-                AllowSorting="true" Data="@hobbits" TItem="Ship" ColumnWidth="200px"
+                AllowSorting="true" Data="@ships" TItem="Ship" ColumnWidth="200px"
                 EditMode="DataGridEditMode.Single"
                 RowUpdate="OnUpdateRow" RowCreate="OnCreateRow" RowEdit="OnEditRow">
         <Columns>
@@ -46,6 +46,6 @@
         </Columns>
     </RadzenGrid>
 
-    <Radzen.Blazor.RadzenTextArea @bind-Value="@console"></Radzen.Blazor.RadzenTextArea>
+    <Radzen.Blazor.RadzenTextArea id="console-output" Rows="40" @bind-Value="@console_output"></Radzen.Blazor.RadzenTextArea>
 
 </div>
