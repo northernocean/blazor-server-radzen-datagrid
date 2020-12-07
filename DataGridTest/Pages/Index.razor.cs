@@ -75,11 +75,13 @@ namespace DataGridTest.Pages
             // Blazor Grid Demo: grid.CancelEditRow(context);
             // if modified, restore original state (uses EF tracking)
 
+            print("CancelEdit-Start " + $"{ship.Id}/{ship.Name}/{ship.Launched}");
+
+            DataGrid.CancelEditRow(ship);
+
             if(ship.Id > 0)
             {
-                // Cancelling an update
-                print("CancelEdit-Start " + $"{ship.Id}/{ship.Name}/{ship.Launched}");
-                DataGrid.CancelEditRow(ship);
+                //If we were editing an existing record, then restore edited record to unmodified state.
                 Ship shipInDB = shipsDB.Where(c => c.Id == ship.Id).SingleOrDefault();
                 if(shipInDB != null)
                 {
@@ -90,14 +92,6 @@ namespace DataGridTest.Pages
                     print("Error - invalid state encountered: ShipID > 0 but ship was never saved to DB.");
                 }
                 print("CancelEdit-End " + $"{ship.Id}/{ship.Name}/{ship.Launched}");
-            }
-            else
-            {
-                // Cancelling an insert
-                print("CancelEdit-Start " + $"{ship.Id}/{ship.Name}/{ship.Launched}");
-                DataGrid.CancelEditRow(ship);
-                print("CancelEdit-End");
-
             }
         }
 
@@ -177,7 +171,14 @@ namespace DataGridTest.Pages
         private string Dump()
         {
             string s = "";
-            s += "ship data: { ";
+            s += "shipsDB data: { ";
+            foreach (var item in shipsDB)
+            {
+                s += $"{item.Id}: {item.Name} ({item.Launched}), ";
+            }
+            s = s.Substring(0, s.Length - 2);
+            s += " }\n";
+            s += "  ships data: { ";
             foreach (var item in ships)
             {
                 s += $"{item.Id}: {item.Name} ({item.Launched}), ";
@@ -185,7 +186,7 @@ namespace DataGridTest.Pages
             s = s.Substring(0, s.Length - 2);
             s += " }\n";
 
-            s += "grid data: { ";
+            s += "DG.data data: { ";
             foreach (var item in DataGrid.Data)
             {
                 s += $"{item.Id}: {item.Name} ({item.Launched}), ";
@@ -197,6 +198,7 @@ namespace DataGridTest.Pages
 
         protected void Refresh()
         {
+            print(data_counts);
             print(Dump());
         }
 
