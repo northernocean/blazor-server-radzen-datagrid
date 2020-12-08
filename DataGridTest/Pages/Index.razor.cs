@@ -4,8 +4,8 @@ using Microsoft.JSInterop;
 using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Linq;
+using System.Runtime.CompilerServices;
 
 namespace DataGridTest.Pages
 {
@@ -17,10 +17,12 @@ namespace DataGridTest.Pages
 
 
         private RadzenGrid<Ship> DataGrid;
-        private IList<Ship> shipsDB = new List<Ship>();
-        private IList<Ship> ships = new List<Ship>();
-        private IList<string> Messages = new List<string>();
-        private string console_output = "";
+        private readonly IList<Ship> shipsDB = new List<Ship>();
+        private readonly IList<Ship> ships = new List<Ship>();
+        private IList<string> ConsoleMessages = new List<string>();
+        private string mock_console_output = "";
+        private string data_display = "";
+        private readonly Random random = new Random(42);
 
         protected override void OnInitialized()
         {
@@ -30,7 +32,7 @@ namespace DataGridTest.Pages
             PopulateShipsDB();
 
             // Representation of transient local data (i.e., queried/retrieved from DB)
-            foreach(var ship in shipsDB)
+            foreach (var ship in shipsDB)
             {
                 ships.Add(ship.Clone());
             }
@@ -41,8 +43,9 @@ namespace DataGridTest.Pages
         {
             // ---------------------------------------
             // Blazor Grid Demo: grid.EditRow(context);
-
+            Status("start");
             DataGrid.EditRow(ship);
+            Status("end");
         }
 
         void OnUpdateRow(Ship ship)
@@ -55,7 +58,7 @@ namespace DataGridTest.Pages
 
             //Question: any reason to do this here rather than in the UpdateRow() method?
 
-            print("OnUpdateRow " + data_counts);
+            Status("OnUpdateRow " + data_counts);
         }
 
         void SaveRow(Ship ship)
@@ -63,10 +66,10 @@ namespace DataGridTest.Pages
             // -----------------------------------------
             // Blazor Grid Demo: grid.UpdateRow(context);
 
-            print("SaveRow-Start " + data_counts);
+            Status("start");
             DataGrid.UpdateRow(ship);
-            //ships = ships.Append(ship);
-            print("SaveRow-End " + data_counts);
+            SaveChanges(ship);
+            Status("end");
         }
 
         void CancelEdit(Ship ship)
@@ -75,24 +78,16 @@ namespace DataGridTest.Pages
             // Blazor Grid Demo: grid.CancelEditRow(context);
             // if modified, restore original state (uses EF tracking)
 
-            print("CancelEdit-Start " + $"{ship.Id}/{ship.Name}/{ship.Launched}");
+            Status("start");
 
             DataGrid.CancelEditRow(ship);
 
-            if(ship.Id > 0)
+            if (ship.Id > 0)
             {
-                //If we were editing an existing record, then restore edited record to unmodified state.
-                Ship shipInDB = shipsDB.Where(c => c.Id == ship.Id).SingleOrDefault();
-                if(shipInDB != null)
-                {
-                    ship.Update(shipInDB);
-                }
-                else
-                {
-                    print("Error - invalid state encountered: ShipID > 0 but ship was never saved to DB.");
-                }
-                print("CancelEdit-End " + $"{ship.Id}/{ship.Name}/{ship.Launched}");
+                RestoreModifiedRecordToOriginalState(ship);
             }
+
+            Status("end");
         }
 
         void DeleteRow(Ship ship)
@@ -105,6 +100,10 @@ namespace DataGridTest.Pages
             //   DataGrid.Reload();
             //ELSE
             //   DataGrid.CancelEditRow(ship);
+
+            Status("start");
+            Status("Delete Not Implemented");
+            Status("end");
         }
 
         protected void InsertRow()
@@ -112,13 +111,13 @@ namespace DataGridTest.Pages
             // -----------------------------------------
             // Blazor Grid Demo: grid.InsertRow(context);
 
-            print("InsertRow-Start " + data_counts);
-            var newShip = new Ship();
+            Status("start");
+            var newShip = new Ship { Name = TestShipName(), Launched = TestShipLaunchYear() };
             DataGrid.InsertRow(newShip);
             //await DataGrid.UpdateRow(newRecipe);
             //Save(newShip);
             //Foo(true);
-            print("InsertRow-End " + data_counts);
+            Status("end");
         }
 
         void OnCreateRow(Ship ship)
@@ -132,7 +131,7 @@ namespace DataGridTest.Pages
             //        order.Employee = dbContext.Employees.Find(order.EmployeeID);
             // Note: This implies saving the row permanently as soon as a row is created.
 
-            print("OnCreateRow " + data_counts);
+            Status("");
 
         }
 
@@ -141,81 +140,112 @@ namespace DataGridTest.Pages
             // ---------------------------------------
             // Blazor Grid Demo: no definition in demo
 
-            print("OnEditRow " + data_counts);
+            Status("");
         }
 
-        //DEBUG
         private async void MockWriteToConsole(string msg)
         {
             string[] lines = msg.Split(
                 new[] { "\r\n", "\r", "\n" },
                 StringSplitOptions.None);
 
-            Messages = Messages.Concat(lines).ToList();
-            while (false && Messages.Count() > 30)
+            ConsoleMessages = ConsoleMessages.Concat(lines).ToList();
+            while (false && ConsoleMessages.Count() > 30)
             {
-                Messages.RemoveAt(0);
+                ConsoleMessages.RemoveAt(0);
             }
-            console_output = string.Join("\n", Messages);
+            mock_console_output = string.Join("\n", ConsoleMessages);
             StateHasChanged();
             await JS.InvokeVoidAsync("setMyScrollTextArea");
         }
 
-        private void print(string msg)
+        private void Status(string flag, [CallerMemberName] string caller = "")
         {
-            MockWriteToConsole(msg);
-            Debug.WriteLine(msg);
+            string s = caller + " " + data_counts + (flag == "" ? "" : " /* " + flag + " */");
+            if (flag.ToLower() == "end")
+                s += "\n";
+            MockWriteToConsole(s);
+            Dump();
+            StateHasChanged();
         }
 
-        //DEBUG
-        private string Dump()
+        private void Dump()
         {
             string s = "";
-            s += "shipsDB data: { ";
+            s += "shipsDB: { ";
             foreach (var item in shipsDB)
             {
-                s += $"{item.Id}: {item.Name} ({item.Launched}), ";
+                s += $"{item.Id}/{item.Name}/{item.Launched}, ";
             }
             s = s.Substring(0, s.Length - 2);
             s += " }\n";
-            s += "  ships data: { ";
+            s += "  ships: { ";
             foreach (var item in ships)
             {
-                s += $"{item.Id}: {item.Name} ({item.Launched}), ";
+                s += $"{item.Id}/{item.Name}/{item.Launched}, ";
             }
             s = s.Substring(0, s.Length - 2);
             s += " }\n";
 
-            s += "DG.data data: { ";
+            s += "DG.data: { ";
             foreach (var item in DataGrid.Data)
             {
-                s += $"{item.Id}: {item.Name} ({item.Launched}), ";
+                s += $"{item.Id}/{item.Name}/{item.Launched}, ";
             }
             s = s.Substring(0, s.Length - 2);
             s += " }";
-            return s;
+            data_display = s;
         }
 
         protected void Refresh()
         {
-            print(data_counts);
-            print(Dump());
+            Dump();
+            StateHasChanged();
+        }
+
+        private string TestShipName()
+        {
+            return "Test" + Convert.ToString(shipsDB.Select(c => c.Id).Max() + 1);
+        }
+
+        private int TestShipLaunchYear()
+        {
+            return random.Next(1950, 2020);
         }
 
         private string data_counts => $"({shipsDB.Count()}, {ships.Count()}, {DataGrid.Data.Count()})";
 
+        private void SaveChanges(Ship ship)
+        {
+            var max = shipsDB.Select(c => c.Id).Max();
+            ship.Id = max + 1;
+            shipsDB.Add(ship.Clone());
+        }
+
+        private void RestoreModifiedRecordToOriginalState(Ship ship)
+        {
+            // restore an edited (but unsaved) record back to its to unmodified state.
+            Ship shipInDB = shipsDB.Where(c => c.Id == ship.Id).SingleOrDefault();
+            if (shipInDB != null)
+            {
+                ship.Update(shipInDB);
+            }
+            else
+            {
+                Status("Error - invalid state encountered: ShipID > 0 but ship was never saved to DB.");
+            }
+        }
+
         private void PopulateShipsDB()
         {
-            shipsDB.Add(new Ship { Id=1, Name="Cutty Sark", Launched=1869 });
-            shipsDB.Add(new Ship { Id=2, Name="Edmund Fitzgerald", Launched=1958 });
-            shipsDB.Add(new Ship { Id=3, Name="Kon Tiki", Launched=1947 });
-            shipsDB.Add(new Ship { Id=4, Name="Edmund Fitzgerald", Launched=1958 });
-            //shipsDB.Add(new Ship { Id=5, Name="Kon Tiki", Launched=1947 });
-            //shipsDB.Add(new Ship { Id=6, Name="Mary Celeste", Launched=1860 });
-            //shipsDB.Add(new Ship { Id=7, Name="Pequod", Launched=1840 });
-            //shipsDB.Add(new Ship { Id=8, Name="Queen Anne's Revenge", Launched=1710 });
-            //shipsDB.Add(new Ship { Id=9, Name="RMS Titanic", Launched=1911 });
-            //shipsDB.Add(new Ship { Id=10, Name="Trieste", Launched=1953 });
+            shipsDB.Add(new Ship { Id = 1, Name = "Cutty Sark", Launched = 1869 });
+            shipsDB.Add(new Ship { Id = 2, Name = "Mary Celeste", Launched = 1860 });
+            shipsDB.Add(new Ship { Id = 3, Name = "Pequod", Launched = 1840 });
+            //shipsDB.Add(new Ship { Id = 4, Name = "Edmund Fitzgerald", Launched = 1958 });
+            //shipsDB.Add(new Ship { Id = 5, Name = "Kon Tiki", Launched = 1947 });
+            //shipsDB.Add(new Ship { Id = 6, Name = "Queen Anne's Revenge", Launched = 1710 });
+            //shipsDB.Add(new Ship { Id = 7, Name = "RMS Titanic", Launched = 1911 });
+            //shipsDB.Add(new Ship { Id = 8, Name = "Trieste", Launched = 1953 });
         }
 
     }

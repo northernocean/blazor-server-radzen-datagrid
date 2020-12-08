@@ -4,11 +4,11 @@ html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
 
-textarea#console-output {
+textarea {
     width: 100%;
     margin-top: 20px;
     font-family: 'Lucida Console', 'Courier New', monospace, sans-serif;
-    font-size: 11px;
+    font-size: 8px;
     color:darkslategray;
 }
 
