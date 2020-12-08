@@ -26,7 +26,7 @@ namespace DataGridTest.Pages
         private readonly IList<Ship> shipsDB = new List<Ship>();
         private readonly IList<Ship> ships = new List<Ship>();
 
-        private bool EditMode = false;
+        private EditState CurrentEditState = EditState.Clean;
 
         // For Debugging
         private IList<string> ConsoleMessages = new List<string>();
@@ -59,9 +59,17 @@ namespace DataGridTest.Pages
             // ---------------------------------------
             // Blazor Grid Demo: grid.EditRow(context);
             Status("start");
-            EditMode = true;
+            CurrentEditState = EditState.Dirty;
             DataGrid.EditRow(ship);
             Status("end");
+        }
+
+        void OnEditRow(Ship ship)
+        {
+            // ---------------------------------------
+            // Blazor Grid Demo: no definition in demo
+
+            Status("");
         }
 
         void OnUpdateRow(Ship ship)
@@ -85,7 +93,7 @@ namespace DataGridTest.Pages
             Status("start");
             DataGrid.UpdateRow(ship);
             SaveChanges(ship);
-            EditMode = false;
+            CurrentEditState = EditState.Clean;
             Status("end");
         }
 
@@ -104,7 +112,7 @@ namespace DataGridTest.Pages
                 RestoreModifiedRecordToOriginalState(ship);
             }
 
-            EditMode = false;
+            CurrentEditState = EditState.Clean;
             Status("end");
         }
 
@@ -146,7 +154,7 @@ namespace DataGridTest.Pages
             //await DataGrid.UpdateRow(newRecipe);
             //Save(newShip);
             //Foo(true);
-            EditMode = true;
+            CurrentEditState = EditState.New;
             Status("end");
         }
 
@@ -163,14 +171,6 @@ namespace DataGridTest.Pages
 
             Status("");
 
-        }
-
-        void OnEditRow(Ship ship)
-        {
-            // ---------------------------------------
-            // Blazor Grid Demo: no definition in demo
-
-            Status("");
         }
 
         private async void MockWriteToConsole(string msg)
@@ -233,7 +233,9 @@ namespace DataGridTest.Pages
         {
             var max = shipsDB.Select(c => c.Id).Max();
             ship.Id = max + 1;
-            shipsDB.Add(ship.Clone());
+            shipsDB.Add(ship.Clone());  // Persist to DB
+            ships.Add(ship);            // Add to local data collection
+            DataGrid.Reload();          // Prophylaxis - make sure grid and grid data are in synch with each other
         }
 
         private void RestoreModifiedRecordToOriginalState(Ship ship)
