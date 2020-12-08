@@ -1,11 +1,14 @@
 ﻿using DataGridTest.Data;
 using Microsoft.AspNetCore.Components;
 using Microsoft.JSInterop;
+using Radzen;
 using Radzen.Blazor;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Runtime.CompilerServices;
+using System.Threading.Tasks;
 
 namespace DataGridTest.Pages
 {
@@ -14,6 +17,9 @@ namespace DataGridTest.Pages
 
         [Inject]
         IJSRuntime JS { get; set; }
+
+        [Inject]
+        DialogService DialogService { get; set; }
 
 
         // Primary data structures
@@ -103,7 +109,7 @@ namespace DataGridTest.Pages
             Status("end");
         }
 
-        void DeleteRow(Ship ship)
+        private async Task DeleteRow(Ship ship)
         {
             // ----------------
             // Blazor Grid Demo:
@@ -115,7 +121,19 @@ namespace DataGridTest.Pages
             //   DataGrid.CancelEditRow(ship);
 
             Status("start");
-            Status("Delete Not Implemented");
+            var x = await DialogService.Confirm("Are you sure you want to delete this record?", "Confirm Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "Cancel" });
+            if (x.HasValue && x.Value)
+            {
+                // Remove from DB
+                var shipInDB = shipsDB.Where(c => c.Id == ship.Id).FirstOrDefault();
+                if(shipInDB != null)
+                {
+                    shipsDB.Remove(shipInDB);
+                }
+                // Remove from DG data source and reload the grid
+                ships.Remove(ship);
+                await DataGrid.Reload();
+            }
             Status("end");
         }
 
@@ -208,12 +226,6 @@ namespace DataGridTest.Pages
             s = s.Substring(0, s.Length - 2);
             s += " }";
             data_display = s;
-        }
-
-        protected void Refresh()
-        {
-            Dump();
-            StateHasChanged();
         }
 
         private string data_counts => $"({shipsDB.Count()}, {ships.Count()}, {DataGrid.Data.Count()})";
