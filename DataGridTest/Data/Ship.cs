@@ -3,7 +3,7 @@
     public class Ship
     {
         public int Id { get; set; }
-        public string Name { get; set; } = "-";
+        public string Name { get; set; } = "";
         public int Launched { get; set; }
 
         public void Update(Ship ship)
