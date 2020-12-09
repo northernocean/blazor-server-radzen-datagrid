@@ -26,7 +26,7 @@ namespace DataGridTest.Pages
         private readonly IList<Ship> shipsDB = new List<Ship>();
         private readonly IList<Ship> ships = new List<Ship>();
 
-        private EditState CurrentEditState = EditState.Clean;
+        private RecordState CurrentRecordState = RecordState.Clean;
 
         // For Debugging
         private IList<string> ConsoleMessages = new List<string>();
@@ -59,7 +59,7 @@ namespace DataGridTest.Pages
             // ---------------------------------------
             // Blazor Grid Demo: grid.EditRow(context);
             Status("start");
-            CurrentEditState = EditState.Dirty;
+            CurrentRecordState = RecordState.Dirty;
             DataGrid.EditRow(ship);
             Status("end");
         }
@@ -93,7 +93,7 @@ namespace DataGridTest.Pages
             Status("start");
             DataGrid.UpdateRow(ship);
             SaveChanges(ship);
-            CurrentEditState = EditState.Clean;
+            CurrentRecordState = RecordState.Clean;
             Status("end");
         }
 
@@ -112,7 +112,7 @@ namespace DataGridTest.Pages
                 RestoreModifiedRecordToOriginalState(ship);
             }
 
-            CurrentEditState = EditState.Clean;
+            CurrentRecordState = RecordState.Clean;
             Status("end");
         }
 
@@ -133,7 +133,7 @@ namespace DataGridTest.Pages
             {
                 // Remove from DB
                 var shipInDB = shipsDB.Where(c => c.Id == ship.Id).FirstOrDefault();
-                if(shipInDB != null)
+                if (shipInDB != null)
                 {
                     shipsDB.Remove(shipInDB);
                 }
@@ -154,7 +154,7 @@ namespace DataGridTest.Pages
             //await DataGrid.UpdateRow(newRecipe);
             //Save(newShip);
             //Foo(true);
-            CurrentEditState = EditState.New;
+            CurrentRecordState = RecordState.New;
             Status("end");
         }
 
@@ -173,6 +173,40 @@ namespace DataGridTest.Pages
 
         }
 
+        private void SaveChanges(Ship ship)
+        {
+            if (CurrentRecordState == RecordState.New)
+            {
+                var max = shipsDB.Select(c => c.Id).Max();
+                ship.Id = max + 1;
+                shipsDB.Add(ship.Clone());  // Persist to DB
+                ships.Add(ship);            // Add to local data collection
+            }
+            else
+            {
+                var shipInDB = shipsDB.Where(c => c.Id == ship.Id).First();     // Persist modification to DB
+                shipInDB.Update(ship);
+                //var shipInShips = ships.Where(c => c.Id == ship.Id).First();  // Local data store is already up to date
+                //ship.Equals(shipInShips); /* true */
+            }
+            //DataGrid.Reload(); //Don't do this!! (Perhaps it should not be called when grid rows are in edit states)
+        }
+
+        private void RestoreModifiedRecordToOriginalState(Ship ship)
+        {
+            // restore an edited but unsaved record back to its to unmodified state.
+            Ship shipInDB = shipsDB.Where(c => c.Id == ship.Id).SingleOrDefault();
+            if (shipInDB != null)
+            {
+                ship.Update(shipInDB);
+            }
+            else
+            {
+                Status("Error - invalid state encountered: ShipID > 0 but ship was never saved to DB.");
+            }
+        }
+
+
         private async void MockWriteToConsole(string msg)
         {
             string[] lines = msg.Split(
@@ -185,7 +219,7 @@ namespace DataGridTest.Pages
                 ConsoleMessages.RemoveAt(0);
             }
             mock_console_output = string.Join("\n", ConsoleMessages);
-            StateHasChanged();
+            //StateHasChanged();
             await JS.InvokeVoidAsync("setMyScrollTextArea");
         }
 
@@ -196,7 +230,7 @@ namespace DataGridTest.Pages
                 s += "\n";
             MockWriteToConsole(s);
             Dump();
-            StateHasChanged();
+            //StateHasChanged();
         }
 
         private void Dump()
@@ -229,29 +263,6 @@ namespace DataGridTest.Pages
 
         private string data_counts => $"({shipsDB.Count()}, {ships.Count()}, {DataGrid.Data.Count()})";
 
-        private void SaveChanges(Ship ship)
-        {
-            var max = shipsDB.Select(c => c.Id).Max();
-            ship.Id = max + 1;
-            shipsDB.Add(ship.Clone());  // Persist to DB
-            ships.Add(ship);            // Add to local data collection
-            DataGrid.Reload();          // Prophylaxis - make sure grid and grid data are in synch with each other
-        }
-
-        private void RestoreModifiedRecordToOriginalState(Ship ship)
-        {
-            // restore an edited but unsaved record back to its to unmodified state.
-            Ship shipInDB = shipsDB.Where(c => c.Id == ship.Id).SingleOrDefault();
-            if (shipInDB != null)
-            {
-                ship.Update(shipInDB);
-            }
-            else
-            {
-                Status("Error - invalid state encountered: ShipID > 0 but ship was never saved to DB.");
-            }
-        }
-
         private void PopulateShipsDB()
         {
             shipsDB.Add(new Ship { Id = 1, Name = "Cutty Sark", Launched = 1869 });
@@ -261,15 +272,16 @@ namespace DataGridTest.Pages
 
         private Ship GetTestShip()
         {
-            if(TestShips.Count() > 0)
+            if (TestShips.Count() > 0)
             {
                 return TestShips.Dequeue();
             }
             else
             {
-                return new Ship { Name=TestShipName(), Launched=TestShipLaunchYear() };
+                return new Ship { Name = TestShipName(), Launched = TestShipLaunchYear() };
             }
         }
+
         private void PopulateTestShips()
         {
             TestShips.Enqueue(new Ship { Name = "Edmund Fitzgerald", Launched = 1958 });
@@ -289,8 +301,11 @@ namespace DataGridTest.Pages
             return random.Next(1950, 2020);
         }
 
+        private void Reload()
+        {
+            DataGrid.Reload();
+        }
 
     }
-
 
 }

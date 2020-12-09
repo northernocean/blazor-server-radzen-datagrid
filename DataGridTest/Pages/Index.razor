@@ -8,7 +8,10 @@
 
     <div class="row pt-2 page-header">
         <div class="col-auto pl-1 pr-1 mb-2">
-            <RadzenButton Icon="add_circle_outline" Click="@InsertRow" Text="Insert" ButtonStyle="ButtonStyle.Primary" Disabled="@(@CurrentEditState != EditState.Clean)" />
+            <RadzenButton Icon="add_circle_outline" Click="@InsertRow" Text="Insert" ButtonStyle="ButtonStyle.Primary" Disabled="@(@CurrentRecordState != RecordState.Clean)" />
+        </div>
+        <div class="col-auto pl-1 pr-1 mb-2">
+            <RadzenButton Icon="add_circle_outline" Click="@Reload" Text="Reload" ButtonStyle="ButtonStyle.Secondary" Disabled="@(@CurrentRecordState != RecordState.Clean)" />
         </div>
     </div>
     <div class="row pt-2">
@@ -23,16 +26,16 @@
 
                         <RadzenGridColumn TItem="Ship" Context="foo" Bubble="false" Filterable="false" Sortable="false">
                             <Template Context="context">
-                                <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(context))" Disabled="@(@CurrentEditState != EditState.Clean)"></RadzenButton>
+                                <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(context))" Disabled="@(@CurrentRecordState != RecordState.Clean)"></RadzenButton>
                             </Template>
                             <EditTemplate Context="context">
-                                <RadzenButton Icon="save" Click="@((args) => SaveRow(context))" Disabled="@(@CurrentEditState == EditState.Clean)" Size="ButtonSize.Small"></RadzenButton>
-                                <RadzenButton Icon="cancel" Click="@((args) => CancelEdit(context))" Disabled="@(@CurrentEditState == EditState.Clean)" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
+                                <RadzenButton Icon="save" Click="@((args) => SaveRow(context))" Disabled="@(@CurrentRecordState == RecordState.Clean)" Size="ButtonSize.Small"></RadzenButton>
+                                <RadzenButton Icon="cancel" Click="@((args) => CancelEdit(context))" Disabled="@(@CurrentRecordState == RecordState.Clean)" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
                             </EditTemplate>
                         </RadzenGridColumn>
                         <RadzenGridColumn TItem="Ship" Context="context" Bubble="false" Filterable="false" Sortable="false" TextAlign="TextAlign.Center" Width="70px">
                             <Template Context="context">
-                                <RadzenButton Click="@(args => DeleteRow(context))" ButtonStyle="ButtonStyle.Danger" Icon="close" Disabled="@(@CurrentEditState != EditState.Clean)" Size="ButtonSize.Small"></RadzenButton>
+                                <RadzenButton Click="@(args => DeleteRow(context))" ButtonStyle="ButtonStyle.Danger" Icon="close" Disabled="@(@CurrentRecordState != RecordState.Clean)" Size="ButtonSize.Small"></RadzenButton>
                             </Template>
                             <EditTemplate Context="context">
                                 <RadzenButton Click="@(args => DeleteRow(context))" ButtonStyle="ButtonStyle.Danger" Icon="close" Disabled="true" Size="ButtonSize.Small"></RadzenButton>

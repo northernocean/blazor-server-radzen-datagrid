@@ -1,6 +1,6 @@
 ﻿namespace DataGridTest.Data
 {
-    public enum EditState
+    public enum RecordState
     {
         Clean = 0,
         Dirty = 1,
