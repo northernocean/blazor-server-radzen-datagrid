@@ -263,6 +263,12 @@ namespace DataGridTest.Pages
 
         private string data_counts => $"({shipsDB.Count()}, {ships.Count()}, {DataGrid.Data.Count()})";
 
+        private void ClearOutput()
+        {
+            ConsoleMessages.Clear();
+            mock_console_output = string.Join("\n", ConsoleMessages);
+        }
+
         private void PopulateShipsDB()
         {
             shipsDB.Add(new Ship { Id = 1, Name = "Cutty Sark", Launched = 1869 });

@@ -8,10 +8,10 @@
 
     <div class="row pt-2 page-header">
         <div class="col-auto pl-1 pr-1 mb-2">
-            <RadzenButton Icon="add_circle_outline" Click="@InsertRow" Text="Insert" ButtonStyle="ButtonStyle.Primary" Disabled="@(@CurrentRecordState != RecordState.Clean)" />
+            <RadzenButton Click="@InsertRow" Text="Insert" ButtonStyle="ButtonStyle.Primary" Disabled="@(@CurrentRecordState != RecordState.Clean)" />
         </div>
         <div class="col-auto pl-1 pr-1 mb-2">
-            <RadzenButton Icon="add_circle_outline" Click="@Reload" Text="Reload" ButtonStyle="ButtonStyle.Secondary" Disabled="@(@CurrentRecordState != RecordState.Clean)" />
+            <RadzenButton Click="@Reload" Text="Foo" ButtonStyle="ButtonStyle.Secondary" Disabled="@(@CurrentRecordState != RecordState.Clean)" />
         </div>
     </div>
     <div class="row pt-2">
@@ -64,6 +64,6 @@
     <label class="mt-3" for="data-viewer">Data</label>
     <Radzen.Blazor.RadzenTextArea id="data-viewer" Rows="4" @bind-Value="@data_display"></Radzen.Blazor.RadzenTextArea>
     <label class="mt-3" for="mock-console">Events</label>
-    <Radzen.Blazor.RadzenTextArea Style="overflow: scroll;" id="mock-console" Rows="20" @bind-Value="@mock_console_output"></Radzen.Blazor.RadzenTextArea>
+    <Radzen.Blazor.RadzenTextArea Style="overflow: scroll;" id="mock-console" Rows="20" @bind-Value="@mock_console_output" @ondblclick="@ClearOutput"></Radzen.Blazor.RadzenTextArea>
 
 </div>
