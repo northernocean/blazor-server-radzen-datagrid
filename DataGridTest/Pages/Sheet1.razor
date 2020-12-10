@@ -1,0 +1,19 @@
+﻿@page "/sheet1/{OrderNum:int}"
+@layout SheetLayout
+
+@inject IJSRuntime JS
+
+<div class="col-md-10">
+    <p>Sheet1</p>
+    <CascadingValue Name="OrderNum" Value="@OrderNum">
+        <Folio1></Folio1>
+    </CascadingValue>
+</div>
+
+
+@code{
+    [Parameter]
+    public int OrderNum { get; set; }
+}
+
+

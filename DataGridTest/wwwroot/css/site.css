@@ -8,6 +8,12 @@ html, body {
     margin-bottom: .5rem;
 }
 
+#folio button
+{
+    width: 100px;
+    margin-top: .5rem;
+}
+
 .folio-panel {
     margin: .5rem;
     background-color: #eee;
@@ -15,10 +21,20 @@ html, body {
     max-width: 500px;
 }
 
-#folio button
-{
+#sheet select{
+    margin-bottom: .5rem;
+}
+
+#sheet button {
     width: 100px;
     margin-top: .5rem;
+}
+
+.sheet-panel {
+    margin: .5rem;
+    background-color: #eee;
+    padding: 1rem;
+    max-width: 500px;
 }
 
 #datagrid-inline-edit textarea {
