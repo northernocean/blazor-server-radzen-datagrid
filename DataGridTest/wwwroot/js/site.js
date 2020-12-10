@@ -1,12 +1,18 @@
-﻿window.myScrollTextArea = function () {
-    const textarea = document.getElementById("mock-console");
-    console.log(textarea);
-    textarea.scrollTop = textarea.scrollHeight;
+﻿window.baselib = {
+    alert: function (msg) {
+        alert(msg);
+    },
+    selectedIndex: function (id, index) {
+        document.getElementById(id).selectedIndex = index;
+    },
+    hideModal: function (selector) {
+        var x = $(selector).modal('hide');
+    },
+    showModal: function (selector) {
+        var x = $(selector).modal('show');
+    }
 }
 
-window.setMyScrollTextArea = function () {
-    setTimeout(myScrollTextArea, 20);
-}
 
 window.scrapeTable = function (selector) {
     var arrData = [];

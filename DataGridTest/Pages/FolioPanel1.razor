@@ -1,0 +1,11 @@
+﻿<div class="folio-panel">
+    <h3>Panel1</h3>
+    <p>Current Option is: @OrderNum</p>
+</div>
+
+@code {
+
+    [CascadingParameter(Name="OrderNum")]
+    private int OrderNum { get; set; }
+
+}

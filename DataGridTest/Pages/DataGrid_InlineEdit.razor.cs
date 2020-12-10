@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace DataGridTest.Pages
 {
-    public partial class Index
+    public partial class DataGrid_InlineEdit
     {
 
         [Inject]

@@ -1,0 +1,71 @@
+﻿@page "/folio"
+@layout FolioLayout
+
+@inject IJSRuntime JS
+
+<div id="folio" class="container-fluid">
+    <div class="row">
+        <h3>Folio Panels</h3>
+    </div>
+    <div class="row">
+        <div class="col-md-2">
+            <div>
+                <select id="ddl-select" @onchange="DDL_Option_Changed">
+                    <option value="0">Choose an Option</option>
+                    <option value="1001">1001</option>
+                    <option value="2001">2001</option>
+                    <option value="3001">3001</option>
+                </select>
+            </div>
+            <div>
+                <button @onclick="@(() => @Button_Clicked(1))">Button1</button>
+            </div>
+            <div>
+                <button @onclick="@(() => @Button_Clicked(2))">Button2</button>
+            </div>
+            <div>
+                <button @onclick="@(() => @Button_Clicked(3))">Button3</button>
+            </div>
+            <div>
+                <button @onclick="@(() => @Button_Clicked(99))">Show All</button>
+            </div>
+        </div>
+        <div class="col-md-10">
+            @if (@CurrentPanel <= 1 || CurrentPanel == 99)
+            {
+                <CascadingValue Name="OrderNum" Value="@CurrentOrder">
+                    <FolioPanel1></FolioPanel1>
+                </CascadingValue>
+            }
+            @if(CurrentPanel == 2 || CurrentPanel == 99)
+            {
+                <CascadingValue Name="OrderNum" Value="@CurrentOrder">
+                    <FolioPanel2></FolioPanel2>
+                </CascadingValue>
+            }
+            @if(CurrentPanel == 3 || CurrentPanel == 99)
+            {
+                <CascadingValue Name="OrderNum" Value="@CurrentOrder">
+                    <FolioPanel3></FolioPanel3>
+                </CascadingValue>
+            }
+        </div>
+    </div>
+</div>
+
+@code{
+    private int CurrentPanel { get; set; } = 1;
+    private int CurrentOrder { get; set; } = 0;
+
+    private void DDL_Option_Changed (ChangeEventArgs e)
+    {
+        CurrentOrder = Convert.ToInt32(e.Value);
+        //StateHasChanged();
+    }
+
+    private void Button_Clicked (object e)
+    {
+        CurrentPanel = Convert.ToInt32(e);
+    }
+}
+
