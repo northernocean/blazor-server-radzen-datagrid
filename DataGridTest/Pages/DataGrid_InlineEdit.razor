@@ -31,7 +31,7 @@
                                 <RadzenButton Icon="edit" Size="ButtonSize.Small" Click="@(args => EditRow(context))" Disabled="@(@CurrentRecordState != RecordState.Clean)"></RadzenButton>
                             </Template>
                             <EditTemplate Context="context">
-                                <RadzenButton Icon="save" Click="@((args) => SaveRow(context))" Disabled="@(@CurrentRecordState == RecordState.Clean)" Size="ButtonSize.Small"></RadzenButton>
+                                <RadzenButton Icon="save" Click="@((args) => UpdateRow(context))" Disabled="@(@CurrentRecordState == RecordState.Clean)" Size="ButtonSize.Small"></RadzenButton>
                                 <RadzenButton Icon="cancel" Click="@((args) => CancelEdit(context))" Disabled="@(@CurrentRecordState == RecordState.Clean)" Size="ButtonSize.Small" ButtonStyle="ButtonStyle.Secondary"></RadzenButton>
                             </EditTemplate>
                         </RadzenGridColumn>

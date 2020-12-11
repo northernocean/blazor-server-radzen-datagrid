@@ -10,6 +10,14 @@
     },
     showModal: function (selector) {
         var x = $(selector).modal('show');
+    },
+    scrollTextArea: function () {
+        const textarea = document.getElementById("mock-console");
+        console.log(textarea);
+        textarea.scrollTop = textarea.scrollHeight;
+    },
+    setScrollTextArea: function () {
+        setTimeout(baselib.scrollTextArea, 20);
     }
 }
 

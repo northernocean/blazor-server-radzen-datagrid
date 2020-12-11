@@ -59,7 +59,7 @@ namespace DataGridTest.Pages
             // ---------------------------------------
             // Blazor Grid Demo: grid.EditRow(context);
             Status("start");
-            CurrentRecordState = RecordState.Dirty;
+            CurrentRecordState = RecordState.Modified;
             DataGrid.EditRow(ship);
             Status("end");
         }
@@ -80,19 +80,17 @@ namespace DataGridTest.Pages
             //      dbContext.SaveChanges();
             //  Also for demo purposes only sync local object with dbContext object
 
-            //Question: any reason to do this here rather than in the UpdateRow() method?
-
-            Status("OnUpdateRow " + data_counts);
+            Status("");
+            SaveChanges(ship);
         }
 
-        void SaveRow(Ship ship)
+        void UpdateRow(Ship ship)
         {
             // -----------------------------------------
             // Blazor Grid Demo: grid.UpdateRow(context);
 
             Status("start");
             DataGrid.UpdateRow(ship);
-            SaveChanges(ship);
             CurrentRecordState = RecordState.Clean;
             Status("end");
         }
@@ -131,14 +129,8 @@ namespace DataGridTest.Pages
             var x = await DialogService.Confirm("Are you sure you want to delete this record?", "Confirm Delete", new ConfirmOptions() { OkButtonText = "Yes", CancelButtonText = "Cancel" });
             if (x.HasValue && x.Value)
             {
-                // Remove from DB
-                var shipInDB = shipsDB.Where(c => c.Id == ship.Id).FirstOrDefault();
-                if (shipInDB != null)
-                {
-                    shipsDB.Remove(shipInDB);
-                }
-                // Remove from DG data source and reload the grid
-                ships.Remove(ship);
+                CurrentRecordState = RecordState.Deleted;
+                SaveChanges(ship);
                 await DataGrid.Reload();
             }
             Status("end");
@@ -170,6 +162,7 @@ namespace DataGridTest.Pages
             // Note: This implies saving the row permanently as soon as a row is created.
 
             Status("");
+            SaveChanges(ship);
 
         }
 
@@ -182,9 +175,18 @@ namespace DataGridTest.Pages
                 shipsDB.Add(ship.Clone());  // Persist to DB
                 ships.Add(ship);            // Add to local data collection
             }
+            else if (CurrentRecordState == RecordState.Deleted)
+            {
+                var shipInDB = shipsDB.Where(c => c.Id == ship.Id).FirstOrDefault();
+                if (shipInDB != null)
+                {
+                    shipsDB.Remove(shipInDB); // Persist to DB
+                }
+                ships.Remove(ship);           // Remove from local data collection
+            }
             else
             {
-                var shipInDB = shipsDB.Where(c => c.Id == ship.Id).First();     // Persist modification to DB
+                var shipInDB = shipsDB.Where(c => c.Id == ship.Id).First();     // Persist to DB
                 shipInDB.Update(ship);
                 //var shipInShips = ships.Where(c => c.Id == ship.Id).First();  // Local data store is already up to date
                 //ship.Equals(shipInShips); /* true */
@@ -206,7 +208,6 @@ namespace DataGridTest.Pages
             }
         }
 
-
         private async void MockWriteToConsole(string msg)
         {
             string[] lines = msg.Split(
@@ -220,7 +221,7 @@ namespace DataGridTest.Pages
             }
             mock_console_output = string.Join("\n", ConsoleMessages);
             //StateHasChanged();
-            await JS.InvokeVoidAsync("setMyScrollTextArea");
+            await JS.InvokeVoidAsync("baselib.setScrollTextArea");
         }
 
         private void Status(string flag, [CallerMemberName] string caller = "")
@@ -305,11 +306,6 @@ namespace DataGridTest.Pages
         private int TestShipLaunchYear()
         {
             return random.Next(1950, 2020);
-        }
-
-        private void Reload()
-        {
-            DataGrid.Reload();
         }
 
     }

@@ -3,7 +3,8 @@
     public enum RecordState
     {
         Clean = 0,
-        Dirty = 1,
-        New = 2
+        Modified = 1,
+        New = 2,
+        Deleted = 3
     }
 }
